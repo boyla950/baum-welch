@@ -1,7 +1,5 @@
-from tkinter import XView
 import numpy as np
 import copy
-
 
 np.set_printoptions(suppress=True)
 
@@ -22,11 +20,7 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
     # Inputs:
     # m = number of states
     # k = number of possible observable values
-
-    # Outputs:
-    # A = [mxm] transition matrix (matrix A)
-    # B = [mxk] emmision matrix (matrix B)
-    # pi0 = [m] list of starting probabilities for each state
+    
     def init_params(m, k):
 
         # randomly initialise transition matrix (A)
@@ -54,17 +48,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
         return A, B, pi0
 
     # CALCULATE FORWARDS PROBABILITIES
-    # Inputs:
-    # A = [mxm] transition matrix (matrix A)
-    # B = [mxk] emmision matrix (matrix B)
-    # pi0 = [m] list of starting probabilities for each state
-    # m = number of states
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-    # alphabet = string of unique observable values e.g. 'abc'
-
-    # Outputs:
-    # alpha = [mxT] matrix of forward probabilities for each state (i.e. the probability that an HMM will output a sequence at time t that ends at state i)
-    # G = [T] matrix containing the sum of alpha values at time t. USed to scale alpha and beta values to prevent underflow errors
     def forwards(A, B, pi0, m, seq, alphabet):
 
         alpha = np.zeros((m, len(seq)))
@@ -101,16 +84,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
         return alpha, G
 
     # CALCULATE BACKWARDS PROBABILITIES
-    # Inputs:
-    # A = [mxm] transition matrix (matrix A)
-    # B = [mxk] emmision matrix (matrix B)
-    # m = number of states
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-    # alphabet = string of unique observable values e.g. 'abc'
-    # G = [T] matrix containing the sum of alpha values at time t. USed to scale alpha and beta values to prevent underflow errors
-
-    # Outputs:
-    # beta = [mxT] matrix of backward probabilities for each state (i.e. the probability that for state i at time t, the observed sequence at time t will end in state i)
     def backwards(A, B, m, seq, alphabet, G):
 
         beta = np.zeros((m, len(seq)))
@@ -143,14 +116,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
         return beta
 
     # CALCULATE 'ETA'
-    # Inputs:
-    # m = number of states
-    # alpha = [mxT] matrix of forward probabilities for each state
-    # beta = [mxT] matrix of backward probabilities for each state
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-
-    # Outputs:
-    # eta = [mxt] matrix representing the probability distribution of a state at time t given the observed sequence 
     def get_eta(m, alpha, beta, seq):
 
         eta = np.zeros((m, len(seq)))
@@ -172,14 +137,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
 
     
     # CALCULATE 'XI'
-    # Inputs:
-    # m = number of states
-    # alpha = [mxT] matrix of forward probabilities for each state
-    # beta = [mxT] matrix of backward probabilities for each state
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-
-    # Outputs:
-    # xi = [Txmxm] matrix representing the joint probability distribution of two consecutive states at time t given the observed sequence 
     def get_xi(m, alpha, beta, seq, alphabet):
 
         xi = np.zeros((len(seq) - 1, m, m))
@@ -219,14 +176,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
 
 
     # UPDATE 'A'
-    # Inputs:
-    # A = [mxm] transition matrix (matrix A)
-    # m = number of states
-    # xi = [Txmxm] matrix representing the joint probability distribution of two consecutive states at time t given the observed sequence 
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-
-    # Outputs:
-    # A' = updated [mxm] transition matrix (matrix A)
     def updateA(A, m, xi, seq):
 
         for i in range(m):
@@ -234,10 +183,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
             denomenator = sum(
                 [xi[t, i, j] for t in range(len(seq) - 1) for j in range(m)]
             )
-
-            # if np.isnan(denomenator):
-
-            #     denomenator = 0.0
 
             for j in range(m):
 
@@ -257,15 +202,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
         return A
 
     # UPDATE 'B'
-    # Inputs:
-    # B = [mxk] emmission matrix (matrix B)
-    # m = number of states
-    # eta = [mxt] matrix representing the probability distribution of a state at time t given the observed sequence 
-    # seq = input sequence (as string) e.g. 'abbcbabcb'
-    # alphabet = string of unique observable values e.g. 'abc'
-
-    # Outputs:
-    # B' = updated [mxk] emmission matrix (matrix A)
     def updateB(B, m, eta, seq, alphabet):
 
         for i in range(m):
@@ -291,9 +227,6 @@ def baum_welch(m, seq, alphabet, max_it = 2000):
         return B
 
     # UPDATE 'pi0'
-    # Inputs:
-    # pi0 = [m] list of starting probabilities for each state
-    # eta = [mxT] matrix representing the probability distribution of a state at time t given the observed sequence 
     def update_pi0(pi0, eta):
 
         for i in range(len(pi0)):
