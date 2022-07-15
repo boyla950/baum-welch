@@ -9,6 +9,6 @@ The aim of the coursework was to implement the Baum-Welch algorithm to allow an 
 ## Feedback
 The final mark received was **72%**.
 
-(In addition to the implementation report the assignment contained some questions which have not been published here but did contribute the overall mark)
+(In addition to the implementation and report, the assignment contained a question sheet which has not been published here but did contribute the overall mark)
 
 > By [boyla950](https://github.com/boyla950).
